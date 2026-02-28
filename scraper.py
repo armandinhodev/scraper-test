@@ -48,7 +48,7 @@ pattern = r'<a class="newButton --small --cleanSecondary --neutral" href="/letra
 
 letters = re.findall(pattern, data.text)
 
-letters = ['A']
+letters = ['a']
 
 for letter in letters:
 
