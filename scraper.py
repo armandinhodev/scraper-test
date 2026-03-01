@@ -28,36 +28,31 @@ url_conexion = f"postgresql+psycopg://{USER}:{PASS}@{HOST}:{PORT}/{DB}"
 
 engine = create_engine(url_conexion)
 
-
-stmt = text("INSERT INTO artists (name, slug) VALUES (:name, :slug)")
-
-
-data = {"name": "Pibes chorros", "slug": "pibes-chorros"}
-
-'''
-
 with engine.connect() as connection:
-    connection.execute(stmt, data)
-    connection.commit() 
-'''
 
-url = 'https://www.letras.com'
-data = requests.get(url, timeout=2)
-
-pattern = r'<a class="newButton --small --cleanSecondary --neutral" href="/letra/(.*?)/">'
-
-letters = re.findall(pattern, data.text)
-
-letters = ['a']
-
-for letter in letters:
-
-    
-    url = f'https://www.letras.com/letra/{letter}/'
+    url = 'https://www.letras.com/estilos/'
     data = requests.get(url, timeout=2)
 
-    pattern = r'href="([^"]+)"[\s\S]*?--size18">([^<]+)<\/b>[\s\S]*?--size14">([^<]+)<\/small>'
+    pattern = r'<li><a href="/estilos/(.*?)/">(.*?)</a></li>'
 
-    artists = re.findall(pattern, data.text)
+    genres = re.findall(pattern, data.text)
 
-    print(artists)
+    sql = text("INSERT INTO genres (name, slug) VALUES (:name, :slug)")
+
+    for genre in genres:
+
+        slug, name = genre
+        name = name.replace('<b>', '').replace('</b>', '')
+
+        data = {"name": name, "slug": slug}
+
+        try:
+
+            connection.execute(sql, data)
+            connection.commit()
+
+        except Exception as e:
+
+            print(f'Ocurrió un error: ', e)
+
+    
